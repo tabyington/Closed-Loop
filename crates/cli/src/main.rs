@@ -1,5 +1,5 @@
-use clap::Parser;
 use chrono::Utc;
+use clap::Parser;
 use serde::Serialize;
 use std::fs;
 use std::io::Write;
@@ -20,7 +20,6 @@ struct Manifest {
     seed: u64,
     ticks: u64,
     timestamp: String,
-    git_commit: Option<String>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -31,23 +30,38 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
         ticks: args.ticks,
     };
 
-    let summary = engine::Engine::run_headless(&cfg);
+    let mut state = engine::Engine::initialize(&cfg);
 
-    println!("RunSummary: {:?}", summary);
+    // snapshot interval
+    let snapshot_interval = 1000;
 
-    // === Create run directory ===
+       // === Create run directory ===
     let timestamp = Utc::now().format("%Y-%m-%dT%H-%M-%SZ").to_string();
     let mut run_dir = PathBuf::from("runs");
     run_dir.push(&timestamp);
 
     fs::create_dir_all(&run_dir)?;
 
+    // create metrics file
+    let metrics_path = run_dir.join("metrics.jsonl");
+    let mut metrics_file = fs::File::create(metrics_path)?;
+
+    for _ in 0..cfg.ticks {
+        engine::Engine::step(&mut state);
+
+        if state.current_tick % snapshot_interval == 0 {
+            let line = serde_json::to_string(&state)?;
+            writeln!(metrics_file, "{}", line)?;
+        }
+    }
+
+    println!("Final state: {:?}", state);
+
     // === Write manifest.json ===
     let manifest = Manifest {
         seed: args.seed,
         ticks: args.ticks,
         timestamp: timestamp.clone(),
-        git_commit: git_commit_hash(),
     };
 
     let manifest_path = run_dir.join("manifest.json");
@@ -58,24 +72,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let metrics_path = run_dir.join("metrics.jsonl");
     let mut file = fs::File::create(metrics_path)?;
 
-    let line = serde_json::to_string(&summary)?;
+    let line = serde_json::to_string(&state)?;
     writeln!(file, "{}", line)?;
 
     println!("Run artifacts written to runs/{}", timestamp);
 
     Ok(())
-}
-
-fn git_commit_hash() -> Option<String> {
-    let out = std::process::Command::new("git")
-        .args(["rev-parse", "HEAD"])
-        .output()
-        .ok()?;
-
-    if !out.status.success() {
-        return None;
-    }
-
-    let s = String::from_utf8(out.stdout).ok()?;
-    Some(s.trim().to_string())
 }

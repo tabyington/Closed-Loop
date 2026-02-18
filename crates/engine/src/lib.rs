@@ -22,23 +22,37 @@ pub struct RunSummary {
     pub deaths: u64,
 }
 
+#[derive(Debug, Clone, Serialize)]
+pub struct EngineState {
+    pub seed: u64,
+    pub current_tick: u64,
+    pub births: u64,
+    pub deaths: u64,
+}
+
+#[derive(Serialize)]
 pub struct Engine;
 
 impl Engine {
-    pub fn run_headless(cfg: &EngineConfig) -> RunSummary {
-        // Placeholder deterministic behavior.
-        // We’ll replace this with real sim state soon.
-        // Determinism rule: outputs must be a pure function of cfg + code version.
-
-        // Tiny “toy” dynamics just to prove the loop shape.
-        let births = cfg.seed % 97; // deterministic
-        let deaths = (cfg.seed / 97) % 53;
-
-        RunSummary {
+    pub fn initialize(cfg: &EngineConfig) -> EngineState {
+        EngineState {
             seed: cfg.seed,
-            ticks: cfg.ticks,
-            births,
-            deaths,
+            current_tick: 0,
+            births: 0,
+            deaths: 0,
+        }
+    }
+
+    pub fn step(state: &mut EngineState) {
+        state.current_tick += 1;
+
+        // Deterministic placeholder logic
+        if state.current_tick % 1000 == 0 {
+            state.births += state.seed % 10;
+        }
+
+        if state.current_tick % 2500 == 0 {
+            state.deaths += (state.seed / 10) % 5;
         }
     }
 }
