@@ -1,10 +1,20 @@
 # Closed-Loop
 ## WHAT: 
-A rust based artificial life simulator. Developed in Rust to enable speed and scale for large simulations. AI code/build/test/reiterate until requirements are met and then passed to human for validation. Closed Loop Requirements Development is what I am calling this process. Collab with AI is intrinsic to this project.
+An artificial life simulator developed in Rust to enable speed and scale for large simulations. Closed Loop Requirements Development (CLRD) is the development process I am experimenting with. Human–AI collaboration is intrinsic to the architecture of this project.
+
+### What is CLRD
+Based on the description in Matt Shumer's article below I was tempted to call this spec driven development, SDD, it's similar to what some places are using. But it actually seems to go a step further.
+* requirements are expressed to the AI system
+* use cases, architectural decisions, and UI/UX are made by the AI
+* code is generated and structured by the AI
+* code is built and tested by the AI
+* failures are sent back to be fixed by the AI
+* when all requirements are met, and application meets stability and performance needs the completed release candidate is handed off to a human for review
+* a human gives the final go or no-go for the software
 
 ## WHY:
-1. I love ALife games but nothing has been released in a while with the depth I've been looking for. I'd like to create something with the biological depth and emergant behavior I feel is missing from other recent releases.
-2. I've worked in software my whole life, but was laid off with my whole team a bit back. And I've still not been able to find a new position, and I'm not the only one. We all know AI is doing something with our jobs, but when I read this article by Matt Shumer https://shumer.dev/something-big-is-happening I realized, even in my optimistic views of technology and it's capabilities, my understanding of the scope was behind the times. This paragraph was the particular motivater for trying this project the way I'm doing it:
+1. I love ALife games but nothing has been released in a while with the depth I've been looking for. I'd like to create something with the biological depth and emergent behavior I feel is missing from other recent releases.
+2. I've worked in software my whole life, but was laid off with my whole team a bit back. And I've still not been able to find a new position, and I'm not the only one. The accelerating capability of AI systems is reshaping how software is produced, and when I read this article by Matt Shumer https://shumer.dev/something-big-is-happening I realized, even in my optimistic views of technology and its capabilities, my understanding of the scope was behind the times. This paragraph was the particular motivator for trying this project the way I'm doing it:
 
 > "I am no longer needed for the actual technical work of my job. I describe what I want built, in plain English, and it just... appears. Not a rough draft I need to fix. The finished thing. I tell the AI what I want, walk away from my computer for four hours, and come back to find the work done. Done well, done better than I would have done it myself, with no corrections needed. A couple of months ago, I was going back and forth with the AI, guiding it, making edits. Now I just describe the outcome and leave."
 
@@ -13,7 +23,7 @@ A rust based artificial life simulator. Developed in Rust to enable speed and sc
 Compile&linking Rust - https://forge.rust-lang.org/infra/other-installation-methods.html
 
 ### Running the command line simulation from repo root
-cargo run
+cargo run -p cli
 
 You will see something similar to this if all goes well:
 ```Finished `dev` profile [unoptimized + debuginfo] target(s) in 0.09s
