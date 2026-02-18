@@ -1,3 +1,5 @@
+use serde::Serialize;
+
 pub fn hello_engine() -> &'static str {
     "Engine Online"
 }
@@ -6,13 +8,13 @@ pub fn add(left: u64, right: u64) -> u64 {
     left + right
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct EngineConfig {
     pub seed: u64,
     pub ticks: u64,
 }
 
-#[derive(Debug, Clone)]
+#[derive(Debug, Clone, Serialize)]
 pub struct RunSummary {
     pub seed: u64,
     pub ticks: u64,
