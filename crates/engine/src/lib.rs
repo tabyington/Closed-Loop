@@ -57,7 +57,6 @@ impl Engine {
     }
 }
 
-
 #[cfg(test)]
 mod tests {
     use super::*;

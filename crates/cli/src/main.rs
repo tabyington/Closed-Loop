@@ -3,7 +3,6 @@ use clap::Parser;
 use serde::Serialize;
 use std::fs;
 use std::io::Write;
-use std::path::PathBuf;
 
 #[derive(Parser, Debug)]
 #[command(name = "echo-cli", version, about = "Closed Loop runner (headless)")]
@@ -16,13 +15,22 @@ struct Args {
 
     #[arg(long, default_value_t = 1000)]
     snapshot_interval: u64,
+
+    #[arg(long, default_value = "runs")]
+    out_dir: std::path::PathBuf,
+
+    #[arg(long)]
+    run_id: Option<String>,
 }
 
 #[derive(Serialize)]
 struct Manifest {
     seed: u64,
     ticks: u64,
+    snapshot_interval: u64,
     timestamp: String,
+    run_id: String,
+    git_commit: Option<String>,
 }
 
 fn main() -> Result<(), Box<dyn std::error::Error>> {
@@ -38,11 +46,10 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     // snapshot interval
     let snapshot_interval = args.snapshot_interval.max(1);
 
-       // === Create run directory ===
+    // === Create run directory ===
     let timestamp = Utc::now().format("%Y-%m-%dT%H-%M-%SZ").to_string();
-    let mut run_dir = PathBuf::from("runs");
-    run_dir.push(&timestamp);
-
+    let folder_name = args.run_id.clone().unwrap_or(timestamp.clone());
+    let run_dir = args.out_dir.join(&folder_name);
     fs::create_dir_all(&run_dir)?;
 
     // create metrics file
@@ -64,14 +71,31 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let manifest = Manifest {
         seed: args.seed,
         ticks: args.ticks,
+        snapshot_interval: args.snapshot_interval,
         timestamp: timestamp.clone(),
+        run_id: folder_name.clone(),
+        git_commit: git_commit_hash(),
     };
 
     let manifest_path = run_dir.join("manifest.json");
     let manifest_json = serde_json::to_string_pretty(&manifest)?;
     fs::write(manifest_path, manifest_json)?;
 
-    println!("Run artifacts written to runs/{}", timestamp);
+    println!("Run artifacts written to {}", run_dir.display());
 
     Ok(())
+}
+
+fn git_commit_hash() -> Option<String> {
+    let out = std::process::Command::new("git")
+        .args(["rev-parse", "HEAD"])
+        .output()
+        .ok()?;
+
+    if !out.status.success() {
+        return None;
+    }
+
+    let s = String::from_utf8(out.stdout).ok()?;
+    Some(s.trim().to_string())
 }
