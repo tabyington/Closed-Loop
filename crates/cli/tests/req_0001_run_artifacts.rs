@@ -1,7 +1,6 @@
-use assert_cmd::prelude::*;
 use serde_json::Value;
+use assert_cmd::cargo::cargo_bin_cmd;
 use std::fs;
-use std::process::Command;
 use tempfile::tempdir;
 
 #[test]
@@ -16,7 +15,7 @@ fn req_0001_run_artifacts_and_snapshot_count() -> Result<(), Box<dyn std::error:
     let snapshot_interval = "1000";
 
     // Act: run the CLI binary
-    let mut cmd = Command::cargo_bin("cli")?;
+    let mut cmd = cargo_bin_cmd!("cli");
     cmd.args([
         "--seed",
         seed,
@@ -126,7 +125,7 @@ fn req_0001_snapshot_interval_zero_does_not_crash() -> Result<(), Box<dyn std::e
     let run_id = "interval-zero";
 
     // Act
-    let mut cmd = Command::cargo_bin("cli")?;
+    let mut cmd = cargo_bin_cmd!("cli");
     cmd.args([
         "--ticks",
         "10",

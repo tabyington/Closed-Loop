@@ -1,6 +1,5 @@
-use assert_cmd::prelude::*;
+use assert_cmd::cargo::cargo_bin_cmd;
 use std::fs;
-use std::process::Command;
 use tempfile::tempdir;
 
 fn run_cli(
@@ -10,7 +9,7 @@ fn run_cli(
     ticks: u64,
     snapshot_interval: u64,
 ) -> Result<(), Box<dyn std::error::Error>> {
-    let mut cmd = Command::cargo_bin("cli")?;
+    let mut cmd = cargo_bin_cmd!("cli");
     cmd.args([
         "--seed",
         &seed.to_string(),
@@ -23,9 +22,12 @@ fn run_cli(
         "--run-id",
         run_id,
     ]);
+
     cmd.assert().success();
     Ok(())
 }
+
+
 
 #[test]
 fn req_0002_same_inputs_produce_identical_metrics() -> Result<(), Box<dyn std::error::Error>> {
