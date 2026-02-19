@@ -71,7 +71,7 @@ fn main() -> Result<(), Box<dyn std::error::Error>> {
     let manifest = Manifest {
         seed: args.seed,
         ticks: args.ticks,
-        snapshot_interval: args.snapshot_interval,
+        snapshot_interval: args.snapshot_interval.max(1),
         timestamp: timestamp.clone(),
         run_id: folder_name.clone(),
         git_commit: git_commit_hash(),
